@@ -88,7 +88,7 @@ const Content = styled.div`
   display: flex;
   align-items: center;
   margin: 0 auto;
-  min-width: 100%;
+  min-height: 100%;
   max-width: 1128px;
 `;
 
@@ -137,7 +137,7 @@ const SearchIcon = styled.div`
 `;
 
 const Nav = styled.nav`
-  margin-left: auto;
+  margin-left: auto;  
   display: block;
   @media (max-width: 768px) {
     position: fixed;
