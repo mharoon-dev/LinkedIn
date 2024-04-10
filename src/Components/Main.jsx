@@ -52,7 +52,12 @@ const Main = (props) => {
           <SocialCounts>
             <li>
               <button>
-                <img src="/images/like.png" width="15" alt="" style={{ marginRight: "1px" }}/>
+                <img
+                  src="/images/like.png"
+                  width="15"
+                  alt=""
+                  style={{ marginRight: "1px" }}
+                />
                 <img src="/images/heart.png" width="15" alt="" />
                 <span>75</span>
               </button>
@@ -271,7 +276,7 @@ const SocialActions = styled.div`
   margin: 0;
   min-height: 40px;
   padding: 4px 8px;
-  
+
   button {
     display: inline-flex;
     align-items: center;

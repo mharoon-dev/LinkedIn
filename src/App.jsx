@@ -3,8 +3,10 @@ import "./App.css";
 import Login from "./Components/Login";
 import Header from "./Components/Header";
 import Home from "./Components/Home";
+import { useSelector } from "react-redux";
 
 function App() {
+  const selector = useSelector((state) => state.user); 
   return (
     <>
       <BrowserRouter>

@@ -1,9 +1,20 @@
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { signInAPI } from "../Redux/actions";
+import { loginRequest, loginSuccess } from "../Redux/Slices/userSlice";
+import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Login = (props) => {
+  const selector = useSelector((state) => state.user);
+  useEffect(() => {
+    console.log(selector);
+  } , [selector])
+  // { selector.user && Navigate("/home") }
+  const dispatch = useDispatch();
   return (
     <Container>
+      {selector.login && <Navigate to="/home" />}
       <Nav>
         <a href="/">
           <img src="/images/login-logo.svg" alt="login-logo" />
@@ -19,7 +30,14 @@ const Login = (props) => {
           <img src="/images/login-hero.svg" alt="login-hero" />
         </Hero>
         <Form>
-          <Google>
+          <Google
+            onClick={async () => {
+              dispatch(loginRequest());
+              console.log("request gone");
+              await props.signInAPI();
+              dispatch(loginSuccess()) && console.log("success");
+            }}
+          >
             <img src="/images/google.svg" alt="google" />
             Sign in with Google
           </Google>
@@ -166,12 +184,14 @@ const Google = styled.button`
 `;
 
 const mapStateToProps = (state) => {
-  return {};
+  return {
+    user: state.user,
+  };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {};
-};
-
+const mapDispatchToProps = (dispatch) => ({
+  signInAPI: () => {
+    return dispatch(signInAPI());
+  },
+});
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
-// export default Login;
