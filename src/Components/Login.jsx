@@ -1,20 +1,15 @@
 import styled from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { signInAPI } from "../Redux/actions";
+import { signInAPI } from "../fireBase/functions";
 import { loginRequest, loginSuccess } from "../Redux/Slices/userSlice";
 import { Navigate } from "react-router-dom";
-import { useEffect } from "react";
-
 const Login = (props) => {
   const selector = useSelector((state) => state.user);
-  useEffect(() => {
-    console.log(selector);
-  } , [selector])
-  // { selector.user && Navigate("/home") }
+  console.log(selector);
   const dispatch = useDispatch();
   return (
     <Container>
-      {selector.login && <Navigate to="/home" />}
+      {selector.user && <Navigate to="/home" />}
       <Nav>
         <a href="/">
           <img src="/images/login-logo.svg" alt="login-logo" />
@@ -33,9 +28,19 @@ const Login = (props) => {
           <Google
             onClick={async () => {
               dispatch(loginRequest());
-              console.log("request gone");
-              await props.signInAPI();
-              dispatch(loginSuccess()) && console.log("success");
+              console.log("Request sent");
+
+              try {
+                const result = await signInAPI(); 
+                if (result instanceof Error) {
+                  console.log(result.message); 
+                } else {
+                  dispatch(loginSuccess(result)); // Pass the user data to loginSuccess
+                  console.log(result);
+                }
+              } catch (error) {
+                console.error("Error during sign-in:", error); // Handle unexpected errors
+              }
             }}
           >
             <img src="/images/google.svg" alt="google" />
@@ -190,8 +195,9 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  signInAPI: () => {
-    return dispatch(signInAPI());
+  signInAPI: ( ) => {
+    dispatch(signInAPI());
   },
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
+

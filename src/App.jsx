@@ -3,10 +3,32 @@ import "./App.css";
 import Login from "./Components/Login";
 import Header from "./Components/Header";
 import Home from "./Components/Home";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getUserAuth } from "./fireBase/functions";
+import { loginSuccess } from "./Redux/Slices/userSlice";
 
 function App() {
-  const selector = useSelector((state) => state.user); 
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
+
+  // Check if user is signed in
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const user = await getUserAuth();
+        if (user) {
+          dispatch(loginSuccess(user));
+          console.log("user is signed in");
+        } else {
+          console.log("No user is signed in");
+        }
+      } catch (error) {
+        console.error("Error during sign-in:", error);
+      }
+    };
+    checkUser();
+  }, [dispatch]);
   return (
     <>
       <BrowserRouter>
@@ -16,7 +38,14 @@ function App() {
             path="/home"
             element={
               <>
-                <Header /> <Home />
+                {user ? (
+                  <>
+                    {" "}
+                    <Header /> <Home />{" "}
+                  </>
+                ) : (
+                  <Login />
+                )}
               </>
             }
           />

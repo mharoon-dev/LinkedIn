@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Leftside from "./Leftside";
+import Leftside from "./Leftside.jsx";
 import Main from "./Main";
 import Rightside from "./Rightside";
 

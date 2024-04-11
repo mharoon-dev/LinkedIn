@@ -1,6 +1,13 @@
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { signOutAPI } from "../fireBase/functions";
+import { logout } from "../Redux/Slices/userSlice";
+import { useDispatch } from "react-redux";
 
 const Header = (props) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
+  console.log(user);
   return (
     <Container>
       <Content>
@@ -51,12 +58,35 @@ const Header = (props) => {
             </NavList>
             <User>
               <a>
-                <img src="/images/user.svg" alt="user" />
-                <span>Me</span>
-                <img src="/images/down-icon.svg" alt="down" />
+                {user?.photoURL ? (
+                  <img src={user?.photoURL} alt="user" />
+                ) : (
+                  <img src="/images/user.svg" alt="user" />
+                )}
+
+                <span>
+                  Me
+                  <img src="/images/down-icon.svg" alt="down" />
+                </span>
               </a>
               <SignOut>
-                <a>Sign Out</a>
+                <a
+                  onClick={async () => {
+                    try {
+                      const signOut = await signOutAPI();
+                      if (signOut instanceof Error) {
+                        console.log(signOut.message);
+                      } else {
+                        dispatch(logout())
+                        console.log( "Sign-out successful." );
+                      }
+                    } catch (error) {
+                      console.error("Error during sign-in:", error);
+                    }
+                  }}
+                >
+                  Sign Out
+                </a>
               </SignOut>
             </User>
             <Work>
@@ -137,7 +167,7 @@ const SearchIcon = styled.div`
 `;
 
 const Nav = styled.nav`
-  margin-left: auto;  
+  margin-left: auto;
   display: block;
   @media (max-width: 768px) {
     position: fixed;
@@ -214,6 +244,10 @@ const SignOut = styled.div`
   transition-duration: 167ms;
   text-align: center;
   display: none;
+
+  a {
+    cursor: pointer !important;
+  }
 `;
 
 const User = styled(NavList)`
