@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import ReactPlayer from "react-player";
 import { useSelector } from "react-redux";
+import uploadImage from "../fireBase/functions";
+import addInDB from "../fireBase/functions";
 
 const PostModal = (props) => {
-    const {user} = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
   const [editorText, setEditorText] = useState("");
   const [sharedImage, setSharedImage] = useState("");
   const [videoLink, setVideoLink] = useState("");
   const [assetArea, setAssetArea] = useState("");
+
   const handleChange = (e) => {
     const image = e.target.files[0];
     if (image === undefined || image === "") {
@@ -22,6 +28,49 @@ const PostModal = (props) => {
     setSharedImage("");
     setVideoLink("");
     setAssetArea(area);
+  };
+
+  const postHandler = async () => {
+    console.log(editorText, sharedImage, videoLink);
+    try {
+      let post = {
+        image: "",
+        video: "",
+        user: user.uid,
+        description: editorText,
+        timestamp: Date.now(),
+      };
+
+      if (sharedImage) {
+        post.image = await uploadImage(sharedImage, sharedImage.name);
+        console.log(post);
+        addInDB(post) &&
+          props.setShowModal(false) &&
+          setEditorText("") &&
+          setSharedImage("") &&
+          setVideoLink("") &&
+          setAssetArea("");
+        return;
+      } else if (videoLink) {
+        post.video = videoLink;
+        console.log(post);
+        addInDB(post) &&
+          props.setShowModal(false) &&
+          setEditorText("") &&
+          setSharedImage("") &&
+          setVideoLink("") &&
+          setAssetArea("");
+        return;
+      } else {
+        console.log("no media selected");
+      }
+      addInDB(post) &&
+        props.setShowModal(false) &&
+        setEditorText("") &&
+        setSharedImage("") &&
+        setVideoLink("") &&
+        setAssetArea("");
+    } catch (error) {}
   };
 
   return (
@@ -45,8 +94,12 @@ const PostModal = (props) => {
             </Header>
             <SharedContent>
               <UserInfo>
-                { user?.photoURL ? <img src={user.photoURL} alt=""/> : <img src="/images/user.svg" alt="" /> }
-                
+                {user?.photoURL ? (
+                  <img src={user.photoURL} alt="" />
+                ) : (
+                  <img src="/images/user.svg" alt="" />
+                )}
+
                 <span>{user?.displayName ? user.displayName : "there"}</span>
               </UserInfo>
               <Editor>
@@ -93,10 +146,18 @@ const PostModal = (props) => {
             <ShareCreation>
               <AttachAssets>
                 <AssetButton>
-                  <img src="/images/video-icon.png" width={20} onClick={() => switchAssetArea("media")} />
+                  <img
+                    src="/images/video-icon.png"
+                    width={20}
+                    onClick={() => switchAssetArea("media")}
+                  />
                 </AssetButton>
                 <AssetButton>
-                  <img src="/images/photo-icon.png" width={20} onClick={() => switchAssetArea("image")} />
+                  <img
+                    src="/images/photo-icon.png"
+                    width={20}
+                    onClick={() => switchAssetArea("image")}
+                  />
                 </AssetButton>
               </AttachAssets>
               <ShareComment>
@@ -105,7 +166,10 @@ const PostModal = (props) => {
                   <span>Anyone</span>
                 </AssetButton>
               </ShareComment>
-              <PostButton disabled={!editorText ? true : false}>
+              <PostButton
+                onClick={() => postHandler()}
+                disabled={!editorText ? true : false}
+              >
                 Post
               </PostButton>
             </ShareCreation>
