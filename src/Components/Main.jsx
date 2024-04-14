@@ -1,8 +1,10 @@
 import styled from "styled-components";
 import PostModal from "./PostModal";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const Main = (props) => {
+  const { user, loading } = useSelector((state) => state.user);
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -10,7 +12,11 @@ const Main = (props) => {
       <ShareBox>
         Share
         <div>
-          <img src="/images/user.svg" alt="" />
+          {user?.photoURL ? (
+            <img src={user?.photoURL} alt="" />
+          ) : (
+            <img src="/images/user.svg" alt="" />
+          )}
           <button onClick={() => setShowModal(true)}>Start a post</button>
         </div>
         <div>
@@ -32,7 +38,10 @@ const Main = (props) => {
           </button>
         </div>
       </ShareBox>
-      <div>
+
+      <Content>
+
+
         <Article>
           <SharedActor>
             <a>
@@ -91,8 +100,9 @@ const Main = (props) => {
             </button>
           </SocialActions>
         </Article>
-      </div>
-      <PostModal showModal={showModal}  setShowModal={setShowModal} />
+      </Content>
+
+      <PostModal showModal={showModal} setShowModal={setShowModal} />
     </Container>
   );
 };
@@ -296,6 +306,13 @@ const SocialActions = styled.div`
         margin-left: 0px;
       }
     }
+  }
+`;
+
+const Content = styled.div`
+  text-align: center;
+  & > img {
+    width: 30px;
   }
 `;
 

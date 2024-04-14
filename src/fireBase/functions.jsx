@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { firebaseConfig } from "../fireBase/fireBase.jsx";
+import db, { firebaseConfig } from "../fireBase/fireBase.jsx";
 import {
   getAuth,
   signInWithPopup,
@@ -8,6 +8,7 @@ import {
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import {
+
   doc,
   setDoc,
   collection,
@@ -70,7 +71,7 @@ export function signOutAPI() {
 
 // upload image
 
-export default function uploadImage(img, fileName) {
+export function uploadImage(img, fileName) {
   console.log("img", img);
   return new Promise((resolve, reject) => {
     //const fileName = img.name;
@@ -106,10 +107,9 @@ export default function uploadImage(img, fileName) {
 
 
 // add a document 
-export  async function addInDB(post) {
+export async function addInDB(post) {
 
   const  saveData = doc(collection(db, "posts"));
 
- const add = await setDoc(saveData, post)
- add ? console.log("data added") : console.log("data not added")
+ await setDoc(saveData, post) && console.log("data added") 
 }

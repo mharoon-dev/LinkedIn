@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import ReactPlayer from "react-player";
-import { useSelector } from "react-redux";
-import uploadImage from "../fireBase/functions";
-import addInDB from "../fireBase/functions";
+import { useDispatch, useSelector } from "react-redux";
+import { uploadImage } from "../fireBase/functions.jsx";
+import { addInDB } from "../fireBase/functions.jsx";
+import changeLoaderState from "../Redux/Slices/loaderSlice.jsx";
 
 const PostModal = (props) => {
-  const { user } = useSelector((state) => state.user);
+  const { user, loading } = useSelector((state) => state.user);
+  // const dispatch = useDispatch();
   useEffect(() => {
     console.log(user);
   }, [user]);
@@ -31,46 +33,37 @@ const PostModal = (props) => {
   };
 
   const postHandler = async () => {
-    console.log(editorText, sharedImage, videoLink);
+    // console.log(editorText, sharedImage, videoLink);
     try {
       let post = {
-        image: "",
-        video: "",
         user: user.uid,
         description: editorText,
         timestamp: Date.now(),
       };
+      console.log(post);
+      // dispatch(changeLoaderState()); dispatch kar ke state change kar ni hai or Main.jsx me content ke andar condition laga kar loader dikha na hai or wo loader mujhe materila UI se lena hai
+      console.log(loading);
+      props.setShowModal(false);
 
       if (sharedImage) {
-        post.image = await uploadImage(sharedImage, sharedImage.name);
+        const imageName = Date.now() + sharedImage.name;
+        post.image = await uploadImage(sharedImage, imageName);
         console.log(post);
-        addInDB(post) &&
-          props.setShowModal(false) &&
-          setEditorText("") &&
-          setSharedImage("") &&
-          setVideoLink("") &&
-          setAssetArea("");
-        return;
       } else if (videoLink) {
         post.video = videoLink;
         console.log(post);
-        addInDB(post) &&
-          props.setShowModal(false) &&
-          setEditorText("") &&
-          setSharedImage("") &&
-          setVideoLink("") &&
-          setAssetArea("");
-        return;
       } else {
         console.log("no media selected");
       }
-      addInDB(post) &&
-        props.setShowModal(false) &&
-        setEditorText("") &&
-        setSharedImage("") &&
-        setVideoLink("") &&
-        setAssetArea("");
-    } catch (error) {}
+      addInDB(post) && console.log("data added");
+    } catch (error) {
+      console.log(error);
+    }
+
+    setEditorText("");
+    setSharedImage("");
+    setVideoLink("");
+    setAssetArea("");
   };
 
   return (
