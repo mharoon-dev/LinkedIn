@@ -22,7 +22,7 @@ const loginSlice = createSlice({
       state.login = true;
       state.error = "";
       state.user = payload;
-      console.log(state);
+      // console.log(state);
     },
     loginFailure: (state = initialState, action) => {
       state.loading = false;

@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 const Header = (props) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
-  console.log(user);
+  // console.log(user);
   return (
     <Container>
       <Content>

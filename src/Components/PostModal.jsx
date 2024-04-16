@@ -4,13 +4,12 @@ import ReactPlayer from "react-player";
 import { useDispatch, useSelector } from "react-redux";
 import { uploadImage } from "../fireBase/functions.jsx";
 import { addInDB } from "../fireBase/functions.jsx";
-import changeLoaderState from "../Redux/Slices/loaderSlice.jsx";
 
 const PostModal = (props) => {
+  const dispatch = useDispatch();
   const { user, loading } = useSelector((state) => state.user);
-  // const dispatch = useDispatch();
   useEffect(() => {
-    console.log(user);
+    // console.log(user);
   }, [user]);
   const [editorText, setEditorText] = useState("");
   const [sharedImage, setSharedImage] = useState("");
@@ -40,22 +39,19 @@ const PostModal = (props) => {
         description: editorText,
         timestamp: Date.now(),
       };
-      console.log(post);
-      // dispatch(changeLoaderState()); dispatch kar ke state change kar ni hai or Main.jsx me content ke andar condition laga kar loader dikha na hai or wo loader mujhe materila UI se lena hai
-      console.log(loading);
-      props.setShowModal(false);
+      // console.log(post);
 
       if (sharedImage) {
         const imageName = Date.now() + sharedImage.name;
         post.image = await uploadImage(sharedImage, imageName);
-        console.log(post);
+        // console.log(post);
       } else if (videoLink) {
         post.video = videoLink;
-        console.log(post);
+        // console.log(post);
       } else {
-        console.log("no media selected");
+        // console.log("no media selected");
       }
-      addInDB(post) && console.log("data added");
+      addInDB(post) && console.log("data added") && props.setShowModal(false);
     } catch (error) {
       console.log(error);
     }

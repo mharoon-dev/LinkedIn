@@ -1,11 +1,43 @@
 import styled from "styled-components";
 import PostModal from "./PostModal";
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getADocument,
+  getAllDataOrderedByTimestamp,
+} from "../fireBase/functions";
+import {
+  getArticlePending,
+  getArticleSuccess,
+  getArticleFailure,
+} from "../Redux/Slices/AriticleSlice.jsx";
 
 const Main = (props) => {
-  const { user, loading } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
+  const { article } = useSelector((state) => state.article);
   const [showModal, setShowModal] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const getPosts = async () => {
+      try {
+        const result = await getAllDataOrderedByTimestamp("posts");
+        // console.log(result);
+        if (result instanceof Error) {
+          dispatch(getArticleFailure());
+        } else {
+          await dispatch(getArticleSuccess(result.data));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getPosts();
+  }, [dispatch]); // Add dispatch as a dependency
+
+  useEffect(() => {
+    console.log(article); // This will be triggered when article changes
+  }, [article]);
 
   return (
     <Container>
@@ -40,66 +72,74 @@ const Main = (props) => {
       </ShareBox>
 
       <Content>
+        {article.length > 0 ? (
+          article.map((article) => {
+            console.log(article);
 
+            // user fetch kar na hai artice.user.stringVlaue bhej kar getADcumnet function me 
 
-        <Article>
-          <SharedActor>
-            <a>
-              <img src="/images/user.svg" alt="" />
-              <div>
-                <span>title</span>
-                <span>info</span>
-                <span>date</span>
-              </div>
-            </a>
-            <button>
-              <img src="/images/ellipsis.png" width="25" alt="" />
-            </button>
-          </SharedActor>
-          <Description> description</Description>
-          <SharedImg>
-            <a>
-              <img src="/images/shared-image.png" alt="" />
-            </a>
-          </SharedImg>
-          <SocialCounts>
-            <li>
-              <button>
-                <img
-                  src="/images/like.png"
-                  width="15"
-                  alt=""
-                  style={{ marginRight: "1px" }}
-                />
-                <img src="/images/heart.png" width="15" alt="" />
-                <span>75</span>
-              </button>
-            </li>
-            <li>
-              <a>2 comments</a>
-            </li>
-          </SocialCounts>
+            // (<Article>
+            //   <SharedActor>
+            //     <a>
+            //       <img src="/images/user.svg" alt="" />
+            //       <div>
+            //         <span>title</span>
+            //         <span>info</span>
+            //         <span>date</span>
+            //       </div>
+            //     </a>
+            //     <button>
+            //       <img src="/images/ellipsis.png" width="25" alt="" />
+            //     </button>
+            //   </SharedActor>
+            //   <Description> description</Description>
+            //   <SharedImg>
+            //     <a>
+            //       <img src="/images/shared-image.png" alt="" />
+            //     </a>
+            //   </SharedImg>
+            //   <SocialCounts>
+            //     <li>
+            //       <button>
+            //         <img
+            //           src="/images/like.png"
+            //           width="15"
+            //           alt=""
+            //           style={{ marginRight: "1px" }}
+            //         />
+            //         <img src="/images/heart.png" width="15" alt="" />
+            //         <span>75</span>
+            //       </button>
+            //     </li>
+            //     <li>
+            //       <a>2 comments</a>
+            //     </li>
+            //   </SocialCounts>
 
-          <SocialActions>
-            <button>
-              <img src="/images/like.png" width="25" alt="" />
-              <span>Like</span>
-            </button>
+            //   <SocialActions>
+            //     <button>
+            //       <img src="/images/like.png" width="25" alt="" />
+            //       <span>Like</span>
+            //     </button>
 
-            <button>
-              <img src="/images/comment.png" width="25" alt="" />
-              <span>Comments</span>
-            </button>
-            <button>
-              <img src="/images/share.png" width="25" alt="" />
-              <span>Share</span>
-            </button>
-            <button>
-              <img src="/images/send.png" width="25" alt="" />
-              <span>Send</span>
-            </button>
-          </SocialActions>
-        </Article>
+            //     <button>
+            //       <img src="/images/comment.png" width="25" alt="" />
+            //       <span>Comments</span>
+            //     </button>
+            //     <button>
+            //       <img src="/images/share.png" width="25" alt="" />
+            //       <span>Share</span>
+            //     </button>
+            //     <button>
+            //       <img src="/images/send.png" width="25" alt="" />
+            //       <span>Send</span>
+            //     </button>
+            //   </SocialActions>
+            // </Article>)
+          })
+        ) : (
+          <p>No articles</p>
+        )}
       </Content>
 
       <PostModal showModal={showModal} setShowModal={setShowModal} />

@@ -8,10 +8,13 @@ import {
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import {
-
   doc,
+  getDoc,
   setDoc,
+  getDocs,
   collection,
+  query,
+  orderBy,
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 import {
@@ -47,7 +50,7 @@ export function getUserAuth() {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user);
+        // console.log(user);
         resolve(user);
       } else {
         console.log("User is signed out");
@@ -98,18 +101,61 @@ export function uploadImage(img, fileName) {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-           return resolve(downloadURL);
+          return resolve(downloadURL);
         });
       }
     );
   });
 }
 
-
-// add a document 
+// add a document
 export async function addInDB(post) {
+  const saveData = doc(collection(db, "posts"));
 
-  const  saveData = doc(collection(db, "posts"));
+  (await setDoc(saveData, post)) && console.log("data added");
+}
 
- await setDoc(saveData, post) && console.log("data added") 
+// get all data by timeStamp
+export async function getAllDataOrderedByTimestamp(collectionName) {
+  try {
+    // Creating a query to order the data by timestamp
+    const q = query(collection(db, collectionName), orderBy("timestamp"));
+
+    // Getting data from db ordered by timestamp
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const data = querySnapshot.docs.map(
+        (doc) => doc?._document?.data?.value?.mapValue?.fields
+      );
+      return {
+        status: true,
+        data: data,
+      };
+    } else {
+      return {
+        status: false,
+        message: "No documents found!",
+      };
+    }
+  } catch (error) {
+    return {
+      status: false,
+      message: error.message,
+    };
+  }
+}
+
+// get a document
+export async function getADocument(id) {
+  const docRef = doc(db, "cities", id);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    console.log("Document data:", docSnap.data());
+    return docSnap.data();
+  } else {
+    // docSnap.data() will be undefined in this case
+    console.log("No such document!");
+  }
 }

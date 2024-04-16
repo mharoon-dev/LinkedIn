@@ -5,7 +5,7 @@ import { loginRequest, loginSuccess } from "../Redux/Slices/userSlice";
 import { Navigate } from "react-router-dom";
 const Login = (props) => {
   const selector = useSelector((state) => state.user);
-  console.log(selector);
+  // console.log(selector);
   const dispatch = useDispatch();
   return (
     <Container>
@@ -28,15 +28,15 @@ const Login = (props) => {
           <Google
             onClick={async () => {
               dispatch(loginRequest());
-              console.log("Request sent");
+              // console.log("Request sent");
 
               try {
                 const result = await signInAPI(); 
                 if (result instanceof Error) {
-                  console.log(result.message); 
+                  // console.log(result.message); 
                 } else {
                   dispatch(loginSuccess(result)); // Pass the user data to loginSuccess
-                  console.log(result);
+                  // console.log(result);
                 }
               } catch (error) {
                 console.error("Error during sign-in:", error); // Handle unexpected errors
