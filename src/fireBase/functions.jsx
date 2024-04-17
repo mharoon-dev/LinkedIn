@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { initializeApp } from "firebase/app";
 import db, { firebaseConfig } from "../fireBase/fireBase.jsx";
 import {
   getAuth,
@@ -6,7 +6,7 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
-} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+} from "firebase/auth";
 import {
   doc,
   getDoc,
@@ -15,14 +15,14 @@ import {
   collection,
   query,
   orderBy,
-} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+} from "firebase/firestore";
 
 import {
   getDownloadURL,
   ref,
   getStorage,
   uploadBytesResumable,
-} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+} from "firebase/storage";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
@@ -111,9 +111,9 @@ export function uploadImage(img, fileName) {
 // add a document
 export async function addInDB(post) {
   console.log("post", post);
-  
+
   // Check if all required fields in the post object are defined
-  if (post && post.user ) {
+  if (post && post.user) {
     const saveData = doc(collection(db, "posts"));
 
     try {

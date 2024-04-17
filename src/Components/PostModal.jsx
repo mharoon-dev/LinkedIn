@@ -46,6 +46,7 @@ const PostModal = (props) => {
         timestamp: Date.now(),
         likes: [],
         comments: [],
+        id: Date.now(),
       };
       // console.log(post);
 
@@ -59,8 +60,7 @@ const PostModal = (props) => {
       } else {
         // console.log("no media selected");
       }
-      addInDB(post) && console.log("data added");
-      window.location.reload();
+      addInDB(post) && console.log("data added") && window.location.reload();
     } catch (error) {
       console.log(error);
     }

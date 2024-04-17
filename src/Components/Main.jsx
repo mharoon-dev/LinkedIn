@@ -11,8 +11,10 @@ import {
   getArticleSuccess,
   getArticleFailure,
 } from "../Redux/Slices/AriticleSlice.jsx";
-import React from 'react'
+import React from "react";
 import ReactPlayer from "react-player";
+import { doc, getDoc } from "firebase/firestore";
+import db from "../fireBase/fireBase.jsx";
 
 const Main = (props) => {
   const { user } = useSelector((state) => state.user);
@@ -40,6 +42,63 @@ const Main = (props) => {
   useEffect(() => {
     console.log(article); // This will be triggered when article changes
   }, [article]);
+
+  const likeHandler = async (postId, loggedInuserEmail) => {
+    try {
+      console.log(postId, loggedInuserEmail);
+
+      // Fetch the document from Firestore
+      const docRef = doc(db, "posts", postId);
+      const docSnap = await getDoc(docRef);
+
+      // Check if the document exists
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+
+        // Access post details from the document snapshot
+        const postDetails = docSnap.data();
+
+        // Perform the like logic here
+        const ifAlreadyLiked = postDetails.likeKey.includes(loggedInuserEmail);
+        if (ifAlreadyLiked) {
+          // Handle already liked scenario
+          const indexOfUser = postDetails.likeKey.indexOf(loggedInuserEmail);
+          postDetails.likeKey.splice(indexOfUser, 1);
+          console.log(postDetails);
+
+          // Updating data in db
+          // Assuming you have a function called `addInDBById` to update the document in Firestore
+          const updateData = await addInDBById(postDetails, postId, "posts");
+
+          // Updating like numbers
+          // Update likeElement and likeIcon as needed
+          // likeElement.textContent = postDetails.likeKey.length;
+          // likeIcon.src = "../assets/home/home center content/like icon(without like ).png";
+        } else {
+          // Handle like scenario
+          postDetails.likeKey.push(loggedInuserEmail);
+          console.log(postDetails);
+
+          // Updating data in db
+          // Assuming you have a function called `addInDBById` to update the document in Firestore
+          const updateData = await addInDBById(postDetails, postId, "posts");
+
+          // Updating like numbers
+          // Update likeElement and likeIcon as needed
+          // likeElement.textContent = postDetails.likeKey.length;
+          // likeIcon.src = "../assets/home/home center content/like icon(with like ).png";
+        }
+      } else {
+        console.log("No such document!");
+        // Handle case where document doesn't exist
+      }
+    } catch (error) {
+      console.error("Error fetching document:", error);
+      // Handle error condition
+      alert("An error occurred while fetching document. Please try again.");
+    }
+  };
+
 
   return (
     <Container>
@@ -73,10 +132,13 @@ const Main = (props) => {
         </div>
       </ShareBox>
 
-        <Content>
-          {article ? (
-            article?.length > 0 ? (
-              article.slice().reverse().map((article) => (
+      <Content>
+        {article ? (
+          article?.length > 0 ? (
+            article
+              .slice()
+              .reverse()
+              .map((article) => (
                 <Article key={article.id}>
                   <SharedActor>
                     <a>
@@ -99,10 +161,14 @@ const Main = (props) => {
                       <img src="/images/ellipsis.png" width="25" alt="" />
                     </button>
                   </SharedActor>
-                  <Description> {article?.description?.stringValue}</Description>
+                  <Description>
+                    {" "}
+                    {article?.description?.stringValue}
+                  </Description>
                   <SharedImg>
                     <a>
-                      {!article?.image?.stringValue && article?.video?.stringValue ? (
+                      {!article?.image?.stringValue &&
+                      article?.video?.stringValue ? (
                         <ReactPlayer
                           url={article?.video?.stringValue}
                           width="100%"
@@ -123,16 +189,20 @@ const Main = (props) => {
                           style={{ marginRight: "1px" }}
                         />
                         <img src="/images/heart.png" width="15" alt="" />
-                        <span> { article?.likes?.length || 0}</span>
+                        <span> {article?.likes?.length || 0}</span>
                       </button>
                     </li>
                     <li>
-                      <a>{ article?.comments?.length || 0 } comments</a>
+                      <a>{article?.comments?.length || 0} comments</a>
                     </li>
                   </SocialCounts>
 
                   <SocialActions>
-                    <button>
+                    <button
+                      onClick={() =>
+                        likeHandler(article.id.integerValue, user?.email)
+                      }
+                    >
                       <img src="/images/like.png" width="25" alt="" />
                       <span>Like</span>
                     </button>
@@ -152,13 +222,13 @@ const Main = (props) => {
                   </SocialActions>
                 </Article>
               ))
-            ) : (
-              <p>No articles</p>
-            )
           ) : (
             <p>No articles</p>
-          )}
-        </Content>
+          )
+        ) : (
+          <p>No articles</p>
+        )}
+      </Content>
 
       <PostModal showModal={showModal} setShowModal={setShowModal} />
     </Container>
