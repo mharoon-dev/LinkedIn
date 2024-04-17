@@ -11,6 +11,8 @@ import {
   getArticleSuccess,
   getArticleFailure,
 } from "../Redux/Slices/AriticleSlice.jsx";
+import React from 'react'
+import ReactPlayer from "react-player";
 
 const Main = (props) => {
   const { user } = useSelector((state) => state.user);
@@ -71,76 +73,92 @@ const Main = (props) => {
         </div>
       </ShareBox>
 
-      <Content>
-        {article.length > 0 ? (
-          article.map((article) => {
-            console.log(article);
+        <Content>
+          {article ? (
+            article?.length > 0 ? (
+              article.slice().reverse().map((article) => (
+                <Article key={article.id}>
+                  <SharedActor>
+                    <a>
+                      <img src="/images/user.svg" alt="" />
+                      <div>
+                        <span>
+                          {article?.user?.mapValue?.fields?.name?.stringValue}
+                        </span>
+                        <span>
+                          {article?.user?.mapValue?.fields?.email?.stringValue}
+                        </span>
+                        <span>
+                          {new Date(parseInt(article.timestamp.integerValue))
+                            .toLocaleString()
+                            .slice(0, 9)}
+                        </span>
+                      </div>
+                    </a>
+                    <button>
+                      <img src="/images/ellipsis.png" width="25" alt="" />
+                    </button>
+                  </SharedActor>
+                  <Description> {article?.description?.stringValue}</Description>
+                  <SharedImg>
+                    <a>
+                      {!article?.image?.stringValue && article?.video?.stringValue ? (
+                        <ReactPlayer
+                          url={article?.video?.stringValue}
+                          width="100%"
+                        />
+                      ) : !article?.video?.stringValue &&
+                        article?.image?.stringValue ? (
+                        <img src={article?.image?.stringValue} alt="" />
+                      ) : null}
+                    </a>
+                  </SharedImg>
+                  <SocialCounts>
+                    <li>
+                      <button>
+                        <img
+                          src="/images/like.png"
+                          width="15"
+                          alt=""
+                          style={{ marginRight: "1px" }}
+                        />
+                        <img src="/images/heart.png" width="15" alt="" />
+                        <span> { article?.likes?.length || 0}</span>
+                      </button>
+                    </li>
+                    <li>
+                      <a>{ article?.comments?.length || 0 } comments</a>
+                    </li>
+                  </SocialCounts>
 
-            // user fetch kar na hai artice.user.stringVlaue bhej kar getADcumnet function me 
+                  <SocialActions>
+                    <button>
+                      <img src="/images/like.png" width="25" alt="" />
+                      <span>Like</span>
+                    </button>
 
-            // (<Article>
-            //   <SharedActor>
-            //     <a>
-            //       <img src="/images/user.svg" alt="" />
-            //       <div>
-            //         <span>title</span>
-            //         <span>info</span>
-            //         <span>date</span>
-            //       </div>
-            //     </a>
-            //     <button>
-            //       <img src="/images/ellipsis.png" width="25" alt="" />
-            //     </button>
-            //   </SharedActor>
-            //   <Description> description</Description>
-            //   <SharedImg>
-            //     <a>
-            //       <img src="/images/shared-image.png" alt="" />
-            //     </a>
-            //   </SharedImg>
-            //   <SocialCounts>
-            //     <li>
-            //       <button>
-            //         <img
-            //           src="/images/like.png"
-            //           width="15"
-            //           alt=""
-            //           style={{ marginRight: "1px" }}
-            //         />
-            //         <img src="/images/heart.png" width="15" alt="" />
-            //         <span>75</span>
-            //       </button>
-            //     </li>
-            //     <li>
-            //       <a>2 comments</a>
-            //     </li>
-            //   </SocialCounts>
-
-            //   <SocialActions>
-            //     <button>
-            //       <img src="/images/like.png" width="25" alt="" />
-            //       <span>Like</span>
-            //     </button>
-
-            //     <button>
-            //       <img src="/images/comment.png" width="25" alt="" />
-            //       <span>Comments</span>
-            //     </button>
-            //     <button>
-            //       <img src="/images/share.png" width="25" alt="" />
-            //       <span>Share</span>
-            //     </button>
-            //     <button>
-            //       <img src="/images/send.png" width="25" alt="" />
-            //       <span>Send</span>
-            //     </button>
-            //   </SocialActions>
-            // </Article>)
-          })
-        ) : (
-          <p>No articles</p>
-        )}
-      </Content>
+                    <button>
+                      <img src="/images/comment.png" width="25" alt="" />
+                      <span>Comments</span>
+                    </button>
+                    <button>
+                      <img src="/images/share.png" width="25" alt="" />
+                      <span>Share</span>
+                    </button>
+                    <button>
+                      <img src="/images/send.png" width="25" alt="" />
+                      <span>Send</span>
+                    </button>
+                  </SocialActions>
+                </Article>
+              ))
+            ) : (
+              <p>No articles</p>
+            )
+          ) : (
+            <p>No articles</p>
+          )}
+        </Content>
 
       <PostModal showModal={showModal} setShowModal={setShowModal} />
     </Container>
@@ -320,6 +338,7 @@ const SocialCounts = styled.ul`
     span {
       margin-left: 2px;
       color: rgba(0, 0, 0, 0.6);
+      margin-top: 1px !important;
     }
   }
 `;
@@ -353,6 +372,12 @@ const Content = styled.div`
   text-align: center;
   & > img {
     width: 30px;
+  }
+  span {
+    display: block;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+    margin-top: 0px;
   }
 `;
 

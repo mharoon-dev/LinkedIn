@@ -34,10 +34,18 @@ const PostModal = (props) => {
   const postHandler = async () => {
     // console.log(editorText, sharedImage, videoLink);
     try {
+      const currentUser = {
+        name: user.displayName,
+        photo: user.photoURL,
+        uid: user.uid,
+        email: user.email,
+      };
       let post = {
-        user: user.uid,
+        user: currentUser,
         description: editorText,
         timestamp: Date.now(),
+        likes: [],
+        comments: [],
       };
       // console.log(post);
 
@@ -51,7 +59,8 @@ const PostModal = (props) => {
       } else {
         // console.log("no media selected");
       }
-      addInDB(post) && console.log("data added") && props.setShowModal(false);
+      addInDB(post) && console.log("data added");
+      window.location.reload();
     } catch (error) {
       console.log(error);
     }

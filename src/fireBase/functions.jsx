@@ -110,9 +110,21 @@ export function uploadImage(img, fileName) {
 
 // add a document
 export async function addInDB(post) {
-  const saveData = doc(collection(db, "posts"));
+  console.log("post", post);
+  
+  // Check if all required fields in the post object are defined
+  if (post && post.user ) {
+    const saveData = doc(collection(db, "posts"));
 
-  (await setDoc(saveData, post)) && console.log("data added");
+    try {
+      await setDoc(saveData, post);
+      console.log("data added");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  } else {
+    console.error("Invalid post data. Required fields are not defined.");
+  }
 }
 
 // get all data by timeStamp
@@ -148,7 +160,8 @@ export async function getAllDataOrderedByTimestamp(collectionName) {
 
 // get a document
 export async function getADocument(id) {
-  const docRef = doc(db, "cities", id);
+  console.log(id);
+  const docRef = doc(db, "posts", id);
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
