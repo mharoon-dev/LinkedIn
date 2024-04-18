@@ -13,7 +13,7 @@ import {
 } from "../Redux/Slices/AriticleSlice.jsx";
 import React from "react";
 import ReactPlayer from "react-player";
-import { doc, getDoc } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
 import db from "../fireBase/fireBase.jsx";
 
 const Main = (props) => {
@@ -43,62 +43,40 @@ const Main = (props) => {
     console.log(article); // This will be triggered when article changes
   }, [article]);
 
-  const likeHandler = async (postId, loggedInuserEmail) => {
-    try {
-      console.log(postId, loggedInuserEmail);
-
-      // Fetch the document from Firestore
-      const docRef = doc(db, "posts", postId);
-      const docSnap = await getDoc(docRef);
-
-      // Check if the document exists
-      if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
-
-        // Access post details from the document snapshot
-        const postDetails = docSnap.data();
-
-        // Perform the like logic here
-        const ifAlreadyLiked = postDetails.likeKey.includes(loggedInuserEmail);
-        if (ifAlreadyLiked) {
-          // Handle already liked scenario
-          const indexOfUser = postDetails.likeKey.indexOf(loggedInuserEmail);
-          postDetails.likeKey.splice(indexOfUser, 1);
-          console.log(postDetails);
-
-          // Updating data in db
-          // Assuming you have a function called `addInDBById` to update the document in Firestore
-          const updateData = await addInDBById(postDetails, postId, "posts");
-
-          // Updating like numbers
-          // Update likeElement and likeIcon as needed
-          // likeElement.textContent = postDetails.likeKey.length;
-          // likeIcon.src = "../assets/home/home center content/like icon(without like ).png";
-        } else {
-          // Handle like scenario
-          postDetails.likeKey.push(loggedInuserEmail);
-          console.log(postDetails);
-
-          // Updating data in db
-          // Assuming you have a function called `addInDBById` to update the document in Firestore
-          const updateData = await addInDBById(postDetails, postId, "posts");
-
-          // Updating like numbers
-          // Update likeElement and likeIcon as needed
-          // likeElement.textContent = postDetails.likeKey.length;
-          // likeIcon.src = "../assets/home/home center content/like icon(with like ).png";
-        }
-      } else {
-        console.log("No such document!");
-        // Handle case where document doesn't exist
-      }
-    } catch (error) {
-      console.error("Error fetching document:", error);
-      // Handle error condition
-      alert("An error occurred while fetching document. Please try again.");
-    }
-  };
-
+  // const likeHandler = async (postId, loggedInuserEmail) => {
+  //   try {
+  //     const getAllPosts = await getAllDataOrderedByTimestamp("posts");
+  //     getAllPosts?.data?.forEach(async (post) => {
+  //       if (post.id.integerValue == postId) {
+  //         if (post.likes && post.likes.arrayValue && post.likes.arrayValue.values) {
+  //           const likesArray = post.likes.arrayValue.values.map(value => value.stringValue);
+  //           post.likes = likesArray;
+  //         } else if (post.likes && Array.isArray(post.likes)) {
+  //           // Already an array, no conversion needed
+  //         } else {
+  //           console.error("post.likes is neither an array nor an object with arrayValue property:", post.likes);
+  //           return;
+  //         }
+  
+  //         if (Array.isArray(post.likes)) {
+  //           if (post.likes.includes(loggedInuserEmail)) {
+  //             return;
+  //           } else {
+  //             post.likes.push(loggedInuserEmail);
+  //             const postIdToUpdate = post.id.integerValue;
+  //             await updateLikesInDatabase(postIdToUpdate, post.likes);
+  //           }
+  //         } else {
+  //           console.error("post.likes is not an array after conversion:", post.likes);
+  //         }
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching document:", error.message);
+  //     alert("An error occurred while fetching document. Please try again.");
+  //   }
+  // };
+  
 
   return (
     <Container>
@@ -189,7 +167,7 @@ const Main = (props) => {
                           style={{ marginRight: "1px" }}
                         />
                         <img src="/images/heart.png" width="15" alt="" />
-                        <span> {article?.likes?.length || 0}</span>
+                        <span> {article?.likes?.length || 10}</span>
                       </button>
                     </li>
                     <li>
@@ -199,9 +177,6 @@ const Main = (props) => {
 
                   <SocialActions>
                     <button
-                      onClick={() =>
-                        likeHandler(article.id.integerValue, user?.email)
-                      }
                     >
                       <img src="/images/like.png" width="25" alt="" />
                       <span>Like</span>
